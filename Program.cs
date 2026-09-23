@@ -1,90 +1,66 @@
-п»їusing System;
+using System;
 using System.Text;
 
-namespace ArrayLab
+namespace DeliveryApp
 {
-    static class ArrayHelper
+    internal class Program
     {
-        public static int IndexOf<T>(T[] a, T x)
-        {
-            for (int i = 0; i < a.Length; i++)
-            {
-                if (a[i].Equals(x))
-                    return i;
-            }
-            return -1;
-        }
-
-        public static void Reverse<T>(T[] a)
-        {
-            int n = a.Length;
-            for (int i = 0; i < n / 2; i++)
-            {
-                T c = a[i];
-                a[i] = a[n - 1 - i];
-                a[n - 1 - i] = c;
-            }
-        }
-
-        public static T Min<T>(T[] a) where T : IComparable<T>
-        {
-            T m = a[0];
-            for (int i = 1; i < a.Length; i++)
-            {
-                if (a[i].CompareTo(m) < 0)
-                    m = a[i];
-            }
-            return m;
-        }
-
-        public static T Max<T>(T[] a) where T : IComparable<T>
-        {
-            T m = a[0];
-            for (int i = 1; i < a.Length; i++)
-            {
-                if (a[i].CompareTo(m) > 0)
-                    m = a[i];
-            }
-            return m;
-        }
-    }
-
-    class Program
-    {
-        static void Main()
+        static void Main(string[] args)
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            int[] arr = { 5, 12, 1, 9, 20 };
+            Console.WriteLine("=== ТЕСТУВАННЯ REPOSITORY ДЛЯ POSTING ===");
+            IRepository<Posting> postingRepo = new GenericRepository<Posting>();
 
-            Console.WriteLine("Р§РёСЃР»Р°:");
-            for (int i = 0; i < arr.Length; i++) Console.Write(arr[i] + " ");
-            Console.WriteLine();
+            postingRepo.Add(new Posting { Id = 1, TrackingNumber = "UA1001", Weight = 2.5, SenderAddress = "Київ", ReceiverAddress = "Львів", Status = "В дорозі" });
+            postingRepo.Add(new Posting { Id = 2, TrackingNumber = "UA1002", Weight = 4.0, SenderAddress = "Одеса", ReceiverAddress = "Харків", Status = "Створено" });
+            postingRepo.Add(new Posting { Id = 3, TrackingNumber = "UA1003", Weight = 1.0, SenderAddress = "Дніпро", ReceiverAddress = "Полтава", Status = "У відділенні" });
 
-            Console.WriteLine("Р†РЅРґРµРєСЃ 9: " + ArrayHelper.IndexOf(arr, 9));
-            Console.WriteLine("РњС–РЅ: " + ArrayHelper.Min(arr));
-            Console.WriteLine("РњР°РєСЃ: " + ArrayHelper.Max(arr));
+            Console.WriteLine("\n--- Отримання за ID = 2 ---");
+            Console.WriteLine(postingRepo.GetById(2));
 
-            ArrayHelper.Reverse(arr);
-            Console.Write("Р РµРІРµСЂСЃ: ");
-            for (int i = 0; i < arr.Length; i++) Console.Write(arr[i] + " ");
-            Console.WriteLine("\n");
+            Console.WriteLine("\n--- Оновлення ID = 1 ---");
+            postingRepo.Update(new Posting { Id = 1, TrackingNumber = "UA1001", Weight = 2.5, SenderAddress = "Київ", ReceiverAddress = "Львів", Status = "Вручено" });
 
-            string[] s = { "РѕРґРёРЅ", "РґРІР°", "С‚СЂРё", "С‡РѕС‚РёСЂРё" };
+            Console.WriteLine("\n--- Видалення ID = 3 ---");
+            postingRepo.Delete(3);
 
-            Console.WriteLine("Р СЏРґРєРё:");
-            for (int i = 0; i < s.Length; i++) Console.Write(s[i] + " ");
-            Console.WriteLine();
+            Console.WriteLine("\n--- Список відправлень, що залишилися: ---");
+            foreach (var item in postingRepo.GetAll())
+            {
+                Console.WriteLine(item);
+            }
 
-            Console.WriteLine("Р†РЅРґРµРєСЃ С‚СЂРё: " + ArrayHelper.IndexOf(s, "С‚СЂРё"));
-            Console.WriteLine("РњС–РЅ: " + ArrayHelper.Min(s));
-            Console.WriteLine("РњР°РєСЃ: " + ArrayHelper.Max(s));
+            Console.WriteLine("\n=============================================");
+            Console.WriteLine("=== ТЕСТУВАННЯ REPOSITORY ДЛЯ CONTACTPERSON ===");
+            IRepository<ContactPerson> contactRepo = new GenericRepository<ContactPerson>();
 
-            ArrayHelper.Reverse(s);
-            Console.Write("Р РµРІРµСЂСЃ: ");
-            for (int i = 0; i < s.Length; i++) Console.Write(s[i] + " ");
-            Console.WriteLine();
+            contactRepo.Add(new ContactPerson { Id = 1, Name = "Олександр Коваленко", Phone = "+380501112233", Email = "oleksandr@gmail.com" });
+            contactRepo.Add(new ContactPerson { Id = 2, Name = "Марія Шевченко", Phone = "+380674445566", Email = "mariya@gmail.com" });
+            contactRepo.Add(new ContactPerson { Id = 3, Name = "Іван Бондаренко", Phone = "+380937778899", Email = "ivan@gmail.com" });
 
+            Console.WriteLine("\n--- Отримання за ID = 1 ---");
+            Console.WriteLine(contactRepo.GetById(1));
+
+            Console.WriteLine("\n--- Оновлення ID = 2 ---");
+            contactRepo.Update(new ContactPerson { Id = 2, Name = "Марія Шевченко-Петренко", Phone = "+380679998877", Email = "m_petrenko@gmail.com" });
+
+            Console.WriteLine("\n--- Видалення ID = 3 ---");
+            contactRepo.Delete(3);
+
+            Console.WriteLine("\n--- Список контактних осіб, що залишилися: ---");
+            foreach (var item in contactRepo.GetAll())
+            {
+                Console.WriteLine(item);
+            }
+
+            Console.WriteLine("\n=============================================");
+            Console.WriteLine("=== ПЕРЕВІРКА НЕЗАЛЕЖНОСТІ СХОВИЩ У ПАМ'ЯТІ ===");
+            Console.WriteLine($"Кількість у postingRepo: {postingRepo.GetAll().Count}");
+            Console.WriteLine($"Кількість у contactRepo: {contactRepo.GetAll().Count}");
+            Console.WriteLine("Дані успішно розділені завдяки статичним полям узагальненого типу.");
+
+            Console.WriteLine("\nНатисніть будь-яку клавішу для завершення...");
             Console.ReadKey();
         }
     }
